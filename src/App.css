@@ -1746,8 +1746,8 @@ padding: 15px 15px;
 }
 
 .rootNote {
-    border: 2px solid #f08c00 !important;
-    box-shadow: 0 0 8px #f08c00;
+    border: 1px solid #f08c00 !important;
+    box-shadow: 0 0 8px #f08c0000;
     font-weight: bold;
     border-radius: 50px;
     position: relative;
