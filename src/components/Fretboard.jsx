@@ -80,6 +80,10 @@ const Fretboard = ({chord, type}) => {
                   [styles.secondChord]: isInChord && shouldShow && type === 'second'
                 }
               )}
+              style={{
+                backgroundColor: isInChord && shouldShow ? 'white' : 'transparent',
+                boxShadow: isInChord && shouldShow ? '0 0 5px rgba(0, 0, 0, 0.8)' : 'none'
+              }}
             >
               {isInChord && shouldShow ? note : ''}
             </div>
@@ -92,8 +96,8 @@ const Fretboard = ({chord, type}) => {
   };
 
   return (
-    <div className={styles.fretboard}>
-      <div className={styles.chorNameTitle}>{name}</div>
+    <div className={`${styles.fretboard} ${type === 'first' ? styles.firstFretboard : styles.secondFretboard}`}>
+      <div className={styles.chorNameTitle} style={{ color: type === 'first' ? '#f08c00' : '#00e1ff' }}>{name}</div>
       
       <div className={styles.fretboardGrid}>
         {/* Horizontal string lines */}

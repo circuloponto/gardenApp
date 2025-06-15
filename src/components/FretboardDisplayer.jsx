@@ -39,7 +39,7 @@ const FretboardDisplayer = ({ firstChord, secondChord }) => {
   console.log('FretboardDisplayer - Second chord data:', secondChordData);
   
   return (
-    <div style={{display: 'flex', justifyContent: 'center'}}>
+    <div style={{display: 'flex', justifyContent: 'center', paddingTop: '40px'}}>
       <Fretboard 
         chord={firstChordData} 
         type="first" 

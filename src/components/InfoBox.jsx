@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { FaPlay, FaPause, FaExchangeAlt, FaPalette } from 'react-icons/fa'
+import { FaPlay, FaPause, FaExchangeAlt, FaPalette, FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import FretboardDisplayer from './FretboardDisplayer'
 import "./FretboardDisplayer.module.css"
 import { flatNotes, getNoteIndex, calculateChordNotes, calculateTwoChords } from '../utils/noteCalculator2'
@@ -58,6 +58,7 @@ const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, o
   const [selectedOffsetIndex, setSelectedOffsetIndex] = useState(-1);
   const [scaleNotes, setScaleNotes] = useState([]);
   const [scaleType, setScaleType] = useState('chromatic'); // Default to chromatic scale
+  const [isFretboardVisible, setIsFretboardVisible] = useState(true); // State to track fretboard visibility
   const notesContainerRef = useRef(null);
 
   useEffect(() => {
@@ -392,8 +393,36 @@ const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, o
         
         {/* Header section */}
         <div className="infoTitle">
+            {/* First row: Tabby Pair title */}
             <div className="titleRow">
-              <div className="tabbytitle">Tabby Pair</div>
+              <div className="tabbytitle" style={{ width: '100%', textAlign: 'center' }}>Tabby Pair</div>
+            </div>
+            
+            {/* Second row: Chord names and controls */}
+            <div className="titleRow" style={{ marginTop: '10px', justifyContent: 'space-between' }}>
+              {/* Chord names on the left */}
+              <div className="chordName">
+                {calculatedChords.length > 0 ? (
+                  <>
+                    {/* Show the chords in swapped order but keep the color classes the same */}
+                    <span className="firstChord">
+                      {formatChordName(calculatedChords[displayOrderSwapped ? 1 : 0].fullName)}
+                    </span>
+                    {calculatedChords.length > 1 && (
+                      <>
+                        <span className='plus'>&</span>
+                        <span className="secondChord">
+                          {formatChordName(calculatedChords[displayOrderSwapped ? 0 : 1].fullName)}
+                        </span>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <span>No chords selected</span>
+                )}
+              </div>
+              
+              {/* Controls on the right */}
               <div className="infobox-controls" style={{ display: 'flex', alignItems: 'center' }}>
                 {/* Only show swap button if we have two different chords selected */}
                 {selectedChords.length === 2 && selectedChords[0] !== selectedChords[1] && (
@@ -428,26 +457,6 @@ const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, o
                 <span className="play-button" onClick={handlePlayClick} style={{ marginLeft: '10px' }}>
                   {isPlaying ? <FaPause className="play-icon" /> : <FaPlay className="play-icon" />}
                 </span>
-              </div>
-              <div className="chordName">
-                {calculatedChords.length > 0 ? (
-                  <>
-                    {/* Show the chords in swapped order but keep the color classes the same */}
-                    <span className="firstChord">
-                      {formatChordName(calculatedChords[displayOrderSwapped ? 1 : 0].fullName)}
-                    </span>
-                    {calculatedChords.length > 1 && (
-                      <>
-                        <span className='plus'>&</span>
-                        <span className="secondChord">
-                          {formatChordName(calculatedChords[displayOrderSwapped ? 0 : 1].fullName)}
-                        </span>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <span>No chords selected</span>
-                )}
               </div>
             </div>
         </div>
@@ -530,33 +539,65 @@ const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, o
                 {electronNotes.length === 0 && <span>No electron notes to display</span>}
             </div>
         </div>
+        {/* Fretboard section with collapsible functionality */}
         {calculatedChords.length === 2 && (
-          <FretboardDisplayer 
-            firstChord={{
-              name: calculatedChords[displayOrderSwapped ? 1 : 0].fullName,
-              spelling: calculatedChords[displayOrderSwapped ? 1 : 0].notes,
-              root: calculatedChords[displayOrderSwapped ? 1 : 0].root,
-              fretStart: 8,
-              positions: [
-                { string: 6, fret: 8 },
-                { string: 5, fret: 8 },
-                { string: 4, fret: 8 },
-                { string: 3, fret: 9 }
-              ]
-            }}
-            secondChord={{
-              name: calculatedChords[displayOrderSwapped ? 0 : 1].fullName,
-              spelling: calculatedChords[displayOrderSwapped ? 0 : 1].notes,
-              root: calculatedChords[displayOrderSwapped ? 0 : 1].root,
-              fretStart: 8,
-              positions: [
-                { string: 6, fret: 8 },
-                { string: 5, fret: 9 },
-                { string: 4, fret: 8 },
-                { string: 3, fret: 8 }
-              ]
-            }}
-          />
+          <div className="fretboard-section">
+            {/* Fretboard header with toggle button */}
+            <div 
+              className="fretboard-header" 
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event from propagating to parent elements
+                setIsFretboardVisible(!isFretboardVisible);
+              }}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '10px',
+                cursor: 'pointer',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              <h3 style={{ margin: 0 }}>Fretboard</h3>
+              {isFretboardVisible ? 
+                <FaChevronUp style={{ color: 'white' }} /> : 
+                <FaChevronDown style={{ color: 'white' }} />
+              }
+            </div>
+            
+            {/* Collapsible fretboard content */}
+            <div 
+              className={`fretboard-content ${isFretboardVisible ? '' : 'collapsed'}`}
+              onClick={(e) => e.stopPropagation()} // Prevent event from propagating to parent elements
+            >
+              <FretboardDisplayer 
+                firstChord={{
+                  name: calculatedChords[displayOrderSwapped ? 1 : 0].fullName,
+                  spelling: calculatedChords[displayOrderSwapped ? 1 : 0].notes,
+                  root: calculatedChords[displayOrderSwapped ? 1 : 0].root,
+                  fretStart: 8,
+                  positions: [
+                    { string: 6, fret: 8 },
+                    { string: 5, fret: 8 },
+                    { string: 4, fret: 8 },
+                    { string: 3, fret: 9 }
+                  ]
+                }}
+                secondChord={{
+                  name: calculatedChords[displayOrderSwapped ? 0 : 1].fullName,
+                  spelling: calculatedChords[displayOrderSwapped ? 0 : 1].notes,
+                  root: calculatedChords[displayOrderSwapped ? 0 : 1].root,
+                  fretStart: 8,
+                  positions: [
+                    { string: 6, fret: 8 },
+                    { string: 5, fret: 9 },
+                    { string: 4, fret: 8 },
+                    { string: 3, fret: 8 }
+                  ]
+                }}
+              />
+            </div>
+          </div>
         )}
     </div>
   )
