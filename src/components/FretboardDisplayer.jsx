@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './FretboardDisplayer.module.css'
 import Fretboard from './Fretboard'
-const FretboardDisplayer = ({ firstChord, secondChord }) => {
+const FretboardDisplayer = ({ firstChord, secondChord, orientation = 'vertical', firstChordColor = '#f08c00', secondChordColor = '#00e1ff' }) => {
 
   const mockChord1 = {
     name: 'C7',
@@ -43,10 +43,16 @@ const FretboardDisplayer = ({ firstChord, secondChord }) => {
       <Fretboard 
         chord={firstChordData} 
         type="first" 
+        orientation={orientation}
+        firstChordColor={firstChordColor}
+        secondChordColor={secondChordColor}
       />
       <Fretboard 
         chord={secondChordData} 
         type="second" 
+        orientation={orientation}
+        firstChordColor={firstChordColor}
+        secondChordColor={secondChordColor}
       />
     </div>
   )

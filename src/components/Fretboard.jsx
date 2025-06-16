@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import styles from './fretboard.module.css'
 import classNames from 'classnames';
 
-const Fretboard = ({chord, type}) => {
+const Fretboard = ({chord, type, orientation = 'vertical', firstChordColor = '#f08c00', secondChordColor = '#00e1ff'}) => {
   const {name, fretStart, positions, spelling = [], root} = chord;
   // Ensure fretStart is at least 1 to avoid negative indices
   const startFret = Math.max(1, fretStart);
@@ -95,9 +95,16 @@ const Fretboard = ({chord, type}) => {
     return cells;
   };
 
+  // Determine the background color based on type and custom colors
+  const backgroundColor = type === 'first' ? firstChordColor : secondChordColor;
+  
   return (
-    <div className={`${styles.fretboard} ${type === 'first' ? styles.firstFretboard : styles.secondFretboard}`}>
-      <div className={styles.chorNameTitle} style={{ color: type === 'first' ? '#f08c00' : '#00e1ff' }}>{name}</div>
+    <div 
+      className={`${styles.fretboard} ${type === 'first' ? styles.firstFretboard : styles.secondFretboard} ${styles[orientation]}`}
+      style={{
+        backgroundColor: backgroundColor
+      }}>
+      <div className={styles.chorNameTitle} style={{ color: type === 'first' ? firstChordColor : secondChordColor }}>{name}</div>
       
       <div className={styles.fretboardGrid}>
         {/* Horizontal string lines */}

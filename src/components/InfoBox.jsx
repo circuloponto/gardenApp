@@ -13,7 +13,7 @@ const formatChordName = (chordName) => {
     .replace(/dim/g, '°');
 };
 
-const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, onRootChange, onSwapChords, onDisplayOrderSwap, displayOrderSwapped = false }) => {
+const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, onRootChange, onSwapChords, onDisplayOrderSwap, displayOrderSwapped = false, fretboardOrientation = 'vertical', firstChordColor = '#f08c00', secondChordColor = '#00e1ff' }) => {
   // Use the prop for display order swap state instead of local state
   // This allows the parent component to control and share this state with other components
   
@@ -595,6 +595,9 @@ const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, o
                     { string: 3, fret: 8 }
                   ]
                 }}
+                orientation={fretboardOrientation}
+                firstChordColor={firstChordColor}
+                secondChordColor={secondChordColor}
               />
             </div>
           </div>

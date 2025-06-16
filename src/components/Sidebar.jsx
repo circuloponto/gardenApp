@@ -1,9 +1,9 @@
 import React from 'react'
 import Button from './button'
 import RootSelector from './RootSelector'
-import { FaEye, FaEyeSlash, FaChessBoard, FaSlidersH, FaAtom } from 'react-icons/fa'
+import { FaEye, FaEyeSlash, FaChessBoard, FaSlidersH, FaAtom, FaCog } from 'react-icons/fa'
 
-const Sidebar = ({ onRootChange, onToggleSlides, selectedRoot, onToggleMatrix, matrixExpanded, onToggleElectrons, showElectrons }) => {
+const Sidebar = ({ onRootChange, onToggleSlides, selectedRoot, onToggleMatrix, matrixExpanded, onToggleElectrons, showElectrons, onOpenSettings }) => {
   return (
     <div className='buttons'>
       <Button 
@@ -36,6 +36,14 @@ const Sidebar = ({ onRootChange, onToggleSlides, selectedRoot, onToggleMatrix, m
           onToggleSlides();
         }} 
         icon={FaSlidersH}
+      />
+      <Button 
+        title="Settings" 
+        stateOptions={['OPEN']} 
+        setViewMode={() => {
+          onOpenSettings();
+        }} 
+        icon={FaCog}
       />
     </div>
   )

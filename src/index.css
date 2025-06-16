@@ -11,6 +11,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Chord color variables with default values */
+  --first-chord-color: #f08c00;
+  --second-chord-color: #00e1ff;
+  
+  /* RGB values for use in rgba() functions */
+  --first-chord-color-rgb: 240, 140, 0;
+  --second-chord-color-rgb: 0, 225, 255;
 }
 
 a {

@@ -9,6 +9,7 @@ import SlidePresentation from './components/SlidePresentation'
 import Matrix from './components/Matrix'
 import Inspector2 from './components/Inspector2'
 import ElectronsDisplay from './components/ElectronsDisplay'
+import Settings from './components/Settings'
 
 import { connections, chordTypes, chordRootOffsets } from './data/connections';
 
@@ -31,6 +32,31 @@ function App() {
   const [hoveredElectron, setHoveredElectron] = useState(null);
   // Track if the display order is swapped (for visual purposes only)
   const [displayOrderSwapped, setDisplayOrderSwapped] = useState(false);
+  
+  // Settings state
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [fretboardOrientation, setFretboardOrientation] = useState('vertical'); // 'vertical' or 'horizontal'
+  const [firstChordColor, setFirstChordColor] = useState('#f08c00'); // Orange
+  const [secondChordColor, setSecondChordColor] = useState('#00e1ff'); // Blue
+  
+  // Update CSS variables when colors change
+  useEffect(() => {
+    // Set the main color variables
+    document.documentElement.style.setProperty('--first-chord-color', firstChordColor);
+    document.documentElement.style.setProperty('--second-chord-color', secondChordColor);
+    
+    // Convert hex to RGB for rgba() functions
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? 
+        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+        null;
+    };
+    
+    // Set RGB values
+    document.documentElement.style.setProperty('--first-chord-color-rgb', hexToRgb(firstChordColor));
+    document.documentElement.style.setProperty('--second-chord-color-rgb', hexToRgb(secondChordColor));
+  }, [firstChordColor, secondChordColor]);
   
   // Function to handle swapping the order of selected chords
   const handleSwapChords = () => {
@@ -238,7 +264,12 @@ function App() {
   
   // Handle background click to deselect all chords
   const handleBackgroundClick = (e) => {
-    // Check if the clicked element should not trigger deselection
+    // Don't deselect chords if settings modal is open
+    if (settingsOpen) {
+      return;
+    }
+    
+    // Function to check if the clicked element should not trigger deselection
     const isProtectedElement = (element) => {
       if (!element) return false;
       
@@ -247,7 +278,10 @@ function App() {
                                  'connected-chord', 'possible-chord', 'deselect-button', 'controls', 'button',
                                  'tutorial-modal', 'tutorial-buttons', 'sidebar', 'infoBox', 'infoSection',
                                  'arrow-left', 'arrow-right', 'notes-wrapper', 'notesContainer', 'sectionContent',
-                                 'infoTitle', 'chordName', 'play-button', 'play-icon', 'titleRow', 'scaleTabs', 'scaleTab'];
+                                 'infoTitle', 'chordName', 'play-button', 'play-icon', 'titleRow', 'scaleTabs', 'scaleTab',
+                                 'settings-overlay', 'settings-modal', 'settings-header', 'settings-content', 'settings-footer',
+                                 'settings-section', 'orientation-options', 'orientation-option', 'color-settings', 'color-option',
+                                 'color-preview', 'save-button', 'cancel-button', 'close-button'];
       
       // Check if the element or any parent up to 3 levels has one of these classes
       let currentElement = element;
@@ -275,6 +309,18 @@ function App() {
 
   return (
     <div className={appClassName} onClick={handleBackgroundClick}>
+      {/* Settings Modal */}
+      <Settings
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        fretboardOrientation={fretboardOrientation}
+        setFretboardOrientation={setFretboardOrientation}
+        firstChordColor={firstChordColor}
+        secondChordColor={secondChordColor}
+        setFirstChordColor={setFirstChordColor}
+        setSecondChordColor={setSecondChordColor}
+      />
+      
       {/* Simple Tutorial UI */}
       {tutorialStep > 0 && (
         <div className="tutorial-container">
@@ -331,6 +377,7 @@ function App() {
           });
         }}
         showElectrons={showElectrons}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
         <div className="content-wrapper">
           {showSlides ? (
@@ -351,42 +398,44 @@ function App() {
   chordRootOffsets={chordRootOffsets}
   displayOrderSwapped={displayOrderSwapped}
 />
-                <Connections viewMode={selectedChords.length === 2 ? 'fruits' : 'connections'} selectedChords={selectedChords} />
-              </div>
-              {/* Always show InfoBox when chords are selected */}
-              <InfoBox 
-                selectedRoot={selectedRoot} 
-                selectedChords={selectedChords} 
-                chordTypes={chordTypes} 
-                chordRootOffsets={chordRootOffsets} 
-                hoveredElectron={hoveredElectron}
-                onRootChange={(note) => {
-                  console.log('InfoBox changing root to:', note);
-                  setSelectedRoot(note);
-                }}
-                onSwapChords={handleSwapChords}
-                onDisplayOrderSwap={handleDisplayOrderSwap}
-                displayOrderSwapped={displayOrderSwapped}
-              />
-              
-              {/* Show Matrix regardless of chord selection state */}
-              <Matrix 
-                isVisible={true} 
-                onRootChange={(note) => {
-                  console.log('Matrix changing root to:', note);
-                  // Force update the root selector by setting the state directly
-                  setSelectedRoot(note);
-                  // Don't deselect chords when changing root
-                }} 
-                selectedRoot={selectedRoot}
-                isExpanded={matrixExpanded}
-                setIsExpanded={setMatrixExpanded}
-              />
-            </>
-          )}
-        </div> 
-    </div>
-    
+            <Connections viewMode={selectedChords.length === 2 ? 'fruits' : 'connections'} selectedChords={selectedChords} />
+          </div>
+          {/* Always show InfoBox when chords are selected */}
+          <InfoBox 
+            selectedRoot={selectedRoot} 
+            selectedChords={selectedChords}
+            chordTypes={chordTypes}
+            chordRootOffsets={chordRootOffsets}
+            hoveredElectron={hoveredElectron}
+            onRootChange={(note) => {
+              console.log('InfoBox changing root to:', note);
+              setSelectedRoot(note);
+            }}
+            onSwapChords={handleSwapChords}
+            onDisplayOrderSwap={handleDisplayOrderSwap}
+            displayOrderSwapped={displayOrderSwapped}
+            fretboardOrientation={fretboardOrientation}
+            firstChordColor={firstChordColor}
+            secondChordColor={secondChordColor}
+          />
+          
+          {/* Show Matrix regardless of chord selection state */}
+          <Matrix 
+            isVisible={true} 
+            onRootChange={(note) => {
+              console.log('Matrix changing root to:', note);
+              // Force update the root selector by setting the state directly
+              setSelectedRoot(note);
+              // Don't deselect chords when changing root
+            }} 
+            selectedRoot={selectedRoot}
+            isExpanded={matrixExpanded}
+            setIsExpanded={setMatrixExpanded}
+          />
+        </>
+      )}
+    </div> 
+  </div>
   )
 }
 
