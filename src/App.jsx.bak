@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import Diagram from './components/Diagram'
 import Connections from './components/Connections'
-import HomePage from './pages/HomePage'
-import FretboardPage from './pages/FretboardPage'
 import InfoBox from './components/InfoBox'
 import Fretboard from './components/Fretboard'
 import Sidebar from './components/Sidebar'
@@ -14,12 +12,16 @@ import Inspector2 from './components/Inspector2'
 import ElectronsDisplay from './components/ElectronsDisplay'
 import Settings from './components/Settings'
 
+// Import pages
+import HomePage from './pages/HomePage'
+import FretboardPage from './pages/FretboardPage'
+
 import { connections, chordTypes, chordRootOffsets } from './data/connections';
 
 import Logo from './components/Logo'
 
 import './App.css'
-import './tutorial.css' 
+import './tutorial.css'
 
 function App() {
   const location = useLocation();
@@ -313,144 +315,54 @@ function App() {
   };
 
   return (
-    <Routes>
-      {/* Home Route */}
-      <Route path="/" element={
-        <HomePage>
-          <div className={appClassName} onClick={handleBackgroundClick}>
-            {/* Settings Modal */}
-            <Settings
-              isOpen={settingsOpen}
-              onClose={() => setSettingsOpen(false)}
-              fretboardOrientation={fretboardOrientation}
-              setFretboardOrientation={setFretboardOrientation}
-              firstChordColor={firstChordColor}
-              secondChordColor={secondChordColor}
-              setFirstChordColor={setFirstChordColor}
-              setSecondChordColor={setSecondChordColor}
-            />
-            
-            {/* Simple Tutorial UI */}
-            {tutorialStep > 0 && (
-              <div className="tutorial-container">
-                {/* Tutorial modal */}
-                <div className="tutorial-modal">
-                  <h3>
-                    {tutorialStep === 1 ? 'Chords' : 'Connections'}
-                  </h3>
-                  <p>
-                    {tutorialStep === 1 
-                      ? 'These elements are chords.' 
-                      : 'These are connections.'}
-                  </p>
-                  <div className="tutorial-buttons">
-                    <button onClick={handleSkipTutorial}>Skip</button>
-                    <button onClick={handleNextStep}>
-                      {tutorialStep === 1 ? 'Next' : 'Finish'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <Inspector2 
-              hoveredChord={hoveredChord} 
-              hoveredElectron={hoveredElectron}
-              selectedChords={selectedChords} 
-              selectedRoot={selectedRoot} 
-              chordTypes={chordTypes} 
-              chordRootOffsets={chordRootOffsets} 
-            />
-            
-            <div className="logo">
-              <Logo fill="white" stroke="white" />
-            </div>
-            
-            {/* ElectronsDisplay moved to scaler div */}
-            
-            <Sidebar 
-              onRootChange={setSelectedRoot} 
-              selectedRoot={selectedRoot} 
-              onToggleSlides={() => setShowSlides(prev => !prev)} 
-              onToggleMatrix={() => setMatrixExpanded(prev => !prev)}
-              matrixExpanded={matrixExpanded}
-              onToggleElectrons={() => {
-                // Log before state change
-                console.log('Before toggle - showElectrons:', showElectrons);
-                
-                // Use the functional form of setState to ensure we're working with the latest state
-                setShowElectrons(currentState => {
-                  const newState = !currentState;
-                  console.log('Setting showElectrons to:', newState);
-                  return newState;
-                });
-              }}
-              showElectrons={showElectrons}
-              onOpenSettings={() => setSettingsOpen(true)}
-            />
-            <div className="content-wrapper">
-              {showSlides ? (
-                <SlidePresentation onClose={() => setShowSlides(false)} />
-              ) : (
-                <>
-                  <div className="scaler" style={{ marginTop: selectedChords.length < 2 ? '200px' : '0' }}>
-                    <Diagram 
-                      handleChordSelect={handleChordSelect} 
-                      selectedChords={selectedChords} 
-                      possibleChords={possibleChords}
-                      onChordHover={setHoveredChord}
-                      hoveredChord={hoveredChord}
-                      showElectrons={showElectrons}
-                      onElectronHover={setHoveredElectron}
-                      selectedRoot={selectedRoot}
-                      chordTypes={chordTypes}
-                      chordRootOffsets={chordRootOffsets}
-                      displayOrderSwapped={displayOrderSwapped}
-                    />
-                    <Connections viewMode={selectedChords.length === 2 ? 'fruits' : 'connections'} selectedChords={selectedChords} />
-                  </div>
-                  {/* Always show InfoBox when chords are selected */}
-                  <InfoBox 
-                    selectedRoot={selectedRoot} 
-                    selectedChords={selectedChords}
-                    chordTypes={chordTypes}
-                    chordRootOffsets={chordRootOffsets}
-                    hoveredElectron={hoveredElectron}
-                    onRootChange={(note) => {
-                      console.log('InfoBox changing root to:', note);
-                      setSelectedRoot(note);
-                    }}
-                    onSwapChords={handleSwapChords}
-                    onDisplayOrderSwap={handleDisplayOrderSwap}
-                    displayOrderSwapped={displayOrderSwapped}
-                    fretboardOrientation={fretboardOrientation}
-                    firstChordColor={firstChordColor}
-                    secondChordColor={secondChordColor}
-                  />
-                  
-                  {/* Show Matrix regardless of chord selection state */}
-                  <Matrix 
-                    isVisible={true} 
-                    onRootChange={(note) => {
-                      console.log('Matrix changing root to:', note);
-                      // Force update the root selector by setting the state directly
-                      setSelectedRoot(note);
-                      // Don't deselect chords when changing root
-                    }} 
-                    selectedRoot={selectedRoot}
-                    isExpanded={matrixExpanded}
-                    setIsExpanded={setMatrixExpanded}
-                  />
-                </>
-              )}
+    <div className={appClassName} onClick={handleBackgroundClick}>
+      {/* Settings Modal */}
+      <Settings
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        fretboardOrientation={fretboardOrientation}
+        setFretboardOrientation={setFretboardOrientation}
+        firstChordColor={firstChordColor}
+        secondChordColor={secondChordColor}
+        setFirstChordColor={setFirstChordColor}
+        setSecondChordColor={setSecondChordColor}
+      />
+      
+      {/* Simple Tutorial UI */}
+      {tutorialStep > 0 && (
+        <div className="tutorial-container">
+          {/* Tutorial modal */}
+          <div className="tutorial-modal">
+            <h3>
+              {tutorialStep === 1 ? 'Chords' : 'Connections'}
+            </h3>
+            <p>
+              {tutorialStep === 1 
+                ? 'These elements are chords.' 
+                : 'These are connections.'}
+            </p>
+            <div className="tutorial-buttons">
+              <button onClick={handleSkipTutorial}>Skip</button>
+              <button onClick={handleNextStep}>
+                {tutorialStep === 1 ? 'Next' : 'Finish'}
+              </button>
             </div>
           </div>
-        </HomePage>
-      } />
+        </div>
+      )}
       
-      {/* Fretboard Route */}
-      <Route path="/fretboard" element={<FretboardPage />} />
-    </Routes>
+      <Inspector2 
+        hoveredChord={hoveredChord} 
+        hoveredElectron={hoveredElectron}
+        selectedChords={selectedChords} 
+        selectedRoot={selectedRoot} 
+        chordTypes={chordTypes} 
+        chordRootOffsets={chordRootOffsets} 
+      />
+      
+      <div className="logo">
+        <Logo fill="white" stroke="white" />
+      </div>
   )
 }
 

@@ -42,6 +42,8 @@ import electronNineteenToTwentyOne from '../assets/SVGs/list/electron_nineteenTo
 import electronDittoFive from '../assets/SVGs/list/electron_dittoFive.svg';
 import electronDittoEight from '../assets/SVGs/list/electron_dittoEight.svg';
 import electronDittoTen from '../assets/SVGs/list/electron_dittoTen.svg';
+// Using a direct SVG component instead of an import to bypass caching
+
 import electronDittoFifteen from '../assets/SVGs/list/electron_dittoFifteen.svg';
 import electronDittoSixteen from '../assets/SVGs/list/electron_dittoSixteen.svg';
 import electronDittoSeventeen from '../assets/SVGs/list/electron_dittoSeventeen.svg';

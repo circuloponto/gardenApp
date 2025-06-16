@@ -5,6 +5,7 @@ import "./FretboardDisplayer.module.css"
 import { flatNotes, getNoteIndex, calculateChordNotes, calculateTwoChords } from '../utils/noteCalculator2'
 // Import some functions we still need from the original calculator
 import { getFullChordName, findChordTypeByClassName, getOffsetRoot } from '../utils/noteCalculator'
+import FretboardNavButton from './FretboardNavButton'
 
 // Function to format chord names by replacing 'min'/'Min' with '-' and 'dim' with '°'
 const formatChordName = (chordName) => {
@@ -598,6 +599,39 @@ const InfoBox = ({ selectedRoot, selectedChords, chordTypes, chordRootOffsets, o
                 orientation={fretboardOrientation}
                 firstChordColor={firstChordColor}
                 secondChordColor={secondChordColor}
+              />
+            </div>
+            
+            {/* Add FretboardNavButton that only appears when scale data is available */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
+              <FretboardNavButton 
+                scaleData={{
+                  firstScale: calculatedChords.length > 0 ? {
+                    name: calculatedChords[displayOrderSwapped ? 1 : 0].fullName,
+                    root: calculatedChords[displayOrderSwapped ? 1 : 0].root,
+                    spelling: calculatedChords[displayOrderSwapped ? 1 : 0].notes,
+                    positions: [
+                      { string: 6, fret: 3 },
+                      { string: 5, fret: 2 },
+                      { string: 4, fret: 0 },
+                      { string: 3, fret: 0 },
+                      { string: 2, fret: 0 },
+                      { string: 1, fret: 3 }
+                    ]
+                  } : null,
+                  secondScale: calculatedChords.length > 1 ? {
+                    name: calculatedChords[displayOrderSwapped ? 0 : 1].fullName,
+                    root: calculatedChords[displayOrderSwapped ? 0 : 1].root,
+                    spelling: calculatedChords[displayOrderSwapped ? 0 : 1].notes,
+                    positions: [
+                      { string: 5, fret: 3 },
+                      { string: 4, fret: 2 },
+                      { string: 3, fret: 0 },
+                      { string: 2, fret: 1 },
+                      { string: 1, fret: 0 }
+                    ]
+                  } : null
+                }}
               />
             </div>
           </div>
