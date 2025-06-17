@@ -6,6 +6,7 @@
     flex-direction: column;
     position: relative;
     transform: rotate(-90deg); /* Always rotated for vertical orientation */
+    background-color: transparent;
 }
 
 .chorNameTitle {
@@ -73,13 +74,10 @@
     color: rgba(0, 0, 0, 0);
     border-radius: 50%;
     transition: all 0.2s ease;
-    
-    transform: rotate(90deg); /* Counter-rotate the notes to make them readable */
 }
 
 /* Notes in the chord */
 .inChord {
-    background: white;
     color: black;
     font-weight: bold;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);

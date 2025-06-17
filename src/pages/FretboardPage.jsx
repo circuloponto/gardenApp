@@ -50,7 +50,7 @@ const FretboardPage = () => {
   return (
     <div className={styles.fretboardPage}>
       <div className={styles.header}>
-        <h1>21-Fret Guitar Fretboard</h1>
+        
         <Link to="/" className={styles.backLink}>Back to Home</Link>
         <button 
           className={styles.orientationButton}

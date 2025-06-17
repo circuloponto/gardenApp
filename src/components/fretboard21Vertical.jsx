@@ -2,7 +2,7 @@ import React from 'react'
 import styles from './fretboard21Vertical.module.css'
 import classNames from 'classnames'
 
-const Fretboard21Vertical = ({chord, type, firstChordColor = '#f08c00', secondChordColor = '#00e1ff'}) => {
+const Fretboard21Vertical = ({chord, firstChordColor = '#f08c00', secondChordColor = '#00e1ff'}) => {
   // Define CSS variables for chord colors
   const cssVars = {
     '--first-chord-color': firstChordColor,
@@ -28,17 +28,30 @@ const Fretboard21Vertical = ({chord, type, firstChordColor = '#f08c00', secondCh
     ['E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db']
   ]
 
-  // Check if a note is in the chord (accounting for enharmonic equivalents)
-  const isNoteInChord = (note, chordSpelling) => {
-    if (!chordSpelling) return false
+  // Check if a note is in the first chord
+  const isNoteInFirstChord = (note) => {
+    if (!chord?.firstChordNotes) return false
     
     // Handle notes with enharmonic equivalents (e.g., "F#/Gb")
     if (note.includes('/')) {
       const [note1, note2] = note.split('/')
-      return chordSpelling.includes(note1) || chordSpelling.includes(note2)
+      return chord.firstChordNotes.includes(note1) || chord.firstChordNotes.includes(note2)
     }
     
-    return chordSpelling.includes(note)
+    return chord.firstChordNotes.includes(note)
+  }
+  
+  // Check if a note is in the second chord
+  const isNoteInSecondChord = (note) => {
+    if (!chord?.secondChordNotes) return false
+    
+    // Handle notes with enharmonic equivalents (e.g., "F#/Gb")
+    if (note.includes('/')) {
+      const [note1, note2] = note.split('/')
+      return chord.secondChordNotes.includes(note1) || chord.secondChordNotes.includes(note2)
+    }
+    
+    return chord.secondChordNotes.includes(note)
   }
 
   // Check if a note is the root note of the chord
@@ -59,11 +72,8 @@ const Fretboard21Vertical = ({chord, type, firstChordColor = '#f08c00', secondCh
 
   return (
     <div 
-      className={classNames(
-        styles.fretboard, 
-        type === 'first' ? styles.firstFretboard : styles.secondFretboard
-      )}
-      style={cssVars}
+      className={styles.fretboard}
+      style={{ backgroundColor: 'transparent' }}
     >
       {chord && chord.name && (
         <div className={styles.chorNameTitle}>{chord.name}</div>
@@ -95,10 +105,24 @@ const Fretboard21Vertical = ({chord, type, firstChordColor = '#f08c00', secondCh
         {strings.map((_, stringIndex) => (
           [...Array(22)].map((_, fretIndex) => {
             const note = notes[stringIndex][fretIndex]
-            const isInChord = chord && isNoteInChord(note, chord.spelling)
+            const isInFirstChord = isNoteInFirstChord(note)
+            const isInSecondChord = isNoteInSecondChord(note)
             const isRoot = chord && isRootNote(note, chord.root)
             const isPositionInChord = chord && chord.positions && 
               chord.positions.some(pos => pos.string === 6-stringIndex && pos.fret === fretIndex)
+            
+            // Determine note color based on chord membership
+            let noteStyle = {}
+            if (isInFirstChord && !isInSecondChord) {
+              noteStyle = { backgroundColor: firstChordColor }
+            } else if (isInSecondChord && !isInFirstChord) {
+              noteStyle = { backgroundColor: secondChordColor }
+            } else if (isInFirstChord && isInSecondChord) {
+              // For notes in both chords, use a gradient
+              noteStyle = { 
+                background: `linear-gradient(135deg, ${firstChordColor} 0%, ${firstChordColor} 49%, ${secondChordColor} 51%, ${secondChordColor} 100%)` 
+              }
+            }
             
             return (
               <div 
@@ -109,16 +133,18 @@ const Fretboard21Vertical = ({chord, type, firstChordColor = '#f08c00', secondCh
                   gridColumn: fretIndex + 1
                 }}
               >
-                <div 
-                  className={classNames(
-                    styles.note,
-                    isInChord && styles.inChord,
-                    isRoot && styles.rootNote,
-                    isPositionInChord && (type === 'first' ? styles.firstChord : styles.secondChord)
-                  )}
-                >
-                  {note.includes('/') ? note.split('/')[0] : note}
-                </div>
+                {(isInFirstChord || isInSecondChord) && (
+                  <div 
+                    className={classNames(
+                      styles.note,
+                      styles.inChord,
+                      isRoot && styles.rootNote
+                    )}
+                    style={noteStyle}
+                  >
+                    {note.includes('/') ? note.split('/')[0] : note}
+                  </div>
+                )}
               </div>
             )
           })
