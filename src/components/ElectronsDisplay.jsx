@@ -349,108 +349,122 @@ const ElectronsDisplay = ({ isVisible, selectedChords = [], hoveredChord = null,
     console.log('sixteenToEighteen electron NOT found in allElectrons!');
   }
 
-  // This uses a pre-calculated mapping of colors to CSS filters
-  // Based on the approach from https://codepen.io/sosuke/pen/Pjoqqp
-  const getColorFilter = (hexColor) => {
-    // If color is white (default), don't apply any filter
-    if (hexColor === '#ffffff') {
+  // Create a function to apply color filter to SVG images
+  const getSvgStyle = () => {
+    if (electronColor === '#ffffff' || electronColor === '#be4bdb') {
+      // Default color, no filter needed
       return {};
     }
     
-    // Common colors with pre-calculated filters for better accuracy
-    const filterMap = {
-      '#ff0000': 'invert(12%) sepia(100%) saturate(5699%) hue-rotate(0deg) brightness(100%) contrast(115%)', // Red
-      '#00ff00': 'invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(128%)', // Green
-      '#0000ff': 'invert(8%) sepia(100%) saturate(7479%) hue-rotate(248deg) brightness(101%) contrast(143%)', // Blue
-      '#ffff00': 'invert(89%) sepia(61%) saturate(1095%) hue-rotate(6deg) brightness(106%) contrast(106%)', // Yellow
-      '#00ffff': 'invert(87%) sepia(51%) saturate(1193%) hue-rotate(157deg) brightness(104%) contrast(104%)', // Cyan
-      '#ff00ff': 'invert(21%) sepia(100%) saturate(7414%) hue-rotate(301deg) brightness(123%) contrast(136%)', // Magenta
-      '#000000': 'brightness(0) saturate(100%)', // Black
-      '#ff8000': 'invert(50%) sepia(57%) saturate(3980%) hue-rotate(1deg) brightness(103%) contrast(104%)', // Orange
-      '#8000ff': 'invert(16%) sepia(95%) saturate(6932%) hue-rotate(275deg) brightness(90%) contrast(129%)', // Purple
-      '#0080ff': 'invert(43%) sepia(85%) saturate(1752%) hue-rotate(194deg) brightness(102%) contrast(101%)', // Light Blue
-      '#ff0080': 'invert(23%) sepia(83%) saturate(7471%) hue-rotate(331deg) brightness(107%) contrast(125%)', // Pink
-      '#80ff00': 'invert(75%) sepia(72%) saturate(1344%) hue-rotate(52deg) brightness(105%) contrast(106%)', // Lime
-      '#00ff80': 'invert(84%) sepia(33%) saturate(7493%) hue-rotate(115deg) brightness(96%) contrast(104%)', // Spring Green
-      '#0080ff': 'invert(43%) sepia(85%) saturate(1752%) hue-rotate(194deg) brightness(102%) contrast(101%)', // Dodger Blue
-      '#8000ff': 'invert(16%) sepia(95%) saturate(6932%) hue-rotate(275deg) brightness(90%) contrast(129%)', // Electric Purple
-      '#ff8000': 'invert(50%) sepia(57%) saturate(3980%) hue-rotate(1deg) brightness(103%) contrast(104%)', // Dark Orange
+    // Convert hex to RGB for filter calculation
+    const hexToRgb = (hex) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return [r, g, b];
     };
     
-    // Normalize the hex color (lowercase, with #)
-    const normalizedHex = hexColor.toLowerCase();
+    // Original purple color in RGB
+    const originalColor = [190, 75, 219]; // #be4bdb in RGB
+    const targetColor = hexToRgb(electronColor);
     
-    // If we have a pre-calculated filter, use it
-    if (filterMap[normalizedHex]) {
-      return { filter: filterMap[normalizedHex] };
+    // Calculate hue rotation and other filter values
+    // This is a simplified approach - for exact color matching, a more complex filter would be needed
+    return {
+      filter: `hue-rotate(${getHueRotation(originalColor, targetColor)}deg) saturate(${getSaturation(originalColor, targetColor)}) brightness(${getBrightness(originalColor, targetColor)})`
+    };
+  };
+  
+  // Helper functions for filter calculations
+  const getHueRotation = (original, target) => {
+    // Simple hue rotation approximation
+    const originalHue = rgbToHue(original[0], original[1], original[2]);
+    const targetHue = rgbToHue(target[0], target[1], target[2]);
+    return (targetHue - originalHue + 360) % 360;
+  };
+  
+  const rgbToHue = (r, g, b) => {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h;
+    
+    if (max === min) {
+      h = 0; // achromatic
+    } else {
+      const d = max - min;
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h *= 60;
+    }
+    return h;
+  };
+  
+  const getSaturation = (original, target) => {
+    // Simple saturation approximation
+    const originalSat = getColorSaturation(original);
+    const targetSat = getColorSaturation(target);
+    return targetSat / originalSat;
+  };
+  
+  const getColorSaturation = (rgb) => {
+    const r = rgb[0] / 255;
+    const g = rgb[1] / 255;
+    const b = rgb[2] / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    return max === 0 ? 0 : (max - min) / max;
+  };
+  
+  const getBrightness = (original, target) => {
+    // Simple brightness approximation
+    const originalBrightness = (original[0] + original[1] + original[2]) / 3;
+    const targetBrightness = (target[0] + target[1] + target[2]) / 3;
+    return targetBrightness / originalBrightness;
+  };
+
+  // Helper function to render an electron with its SVG
+  const renderElectron = (electronClassName, electronId) => {
+    // Get the SVG source from the electronSvgMap using the electronId
+    const svgSrc = electronSvgMap[electronId];
+    
+    if (!svgSrc) {
+      console.error(`SVG not found for electron ID: ${electronId}`);
+      return null;
     }
     
-    // For colors we don't have pre-calculated, use a simple approximation
-    // Convert hex to RGB
-    const hexToRgb = (hex) => {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : null;
-    };
+    // Get the style with color filters based on the selected electronColor
+    const svgStyle = getSvgStyle();
     
-    const rgb = hexToRgb(normalizedHex);
-    if (!rgb) return {};
-    
-    // Find the closest pre-calculated color
-    let closestColor = '#ffffff';
-    let minDistance = Number.MAX_VALUE;
-    
-    Object.keys(filterMap).forEach(color => {
-      const targetRgb = hexToRgb(color);
-      if (targetRgb) {
-        // Calculate color distance using simple Euclidean distance
-        const distance = Math.sqrt(
-          Math.pow(targetRgb.r - rgb.r, 2) +
-          Math.pow(targetRgb.g - rgb.g, 2) +
-          Math.pow(targetRgb.b - rgb.b, 2)
-        );
-        
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestColor = color;
-        }
-      }
-    });
-    
-    // Use the filter of the closest color
-    return { filter: filterMap[closestColor] };
+    return (
+      <div
+        className={styles[electronClassName]}
+        onMouseEnter={() => handleElectronHover(electronClassName)}
+        onMouseLeave={handleElectronLeave}
+      >
+        <img 
+          src={svgSrc} 
+          alt={`Electron ${electronId}`} 
+          className={styles.visible}
+          style={svgStyle}
+        />
+      </div>
+    );
   };
 
   return (
     <div className={styles['electrons-display']}>
-      {visibleElectrons.map((electron, index) => (
-        <img
-          key={electron.id}
-          src={electron.src}
-          alt={`Electron ${index + 1}`}
-          className={`${styles[electron.className]} ${styles['visible']}`}
-          onMouseEnter={() => handleElectronHover(electron.className)}
-          onMouseLeave={handleElectronLeave}
-          style={getColorFilter(electronColor)}
-        />
-      ))}
+      {visibleElectrons.map((electron) => renderElectron(electron.className, electron.id))}
       
       {/* Force render sixteenToEighteen electron when chord 16 is selected */}
-      {selectedChords.length > 0 && selectedChords[0] === 'sixteen' && sixteenToEighteenElectron && (
-        <img
-          key="forced-sixteenToEighteen"
-          src={sixteenToEighteenElectron.src}
-          alt="Connection 16 to 18"
-          className={`${styles[sixteenToEighteenElectron.className]} ${styles['visible']}`}
-          onMouseEnter={() => handleElectronHover(sixteenToEighteenElectron.className)}
-          onMouseLeave={handleElectronLeave}
-          style={getColorFilter(electronColor)}
-        />
-      )}
-       
+      {selectedChords.length > 0 && selectedChords[0] === 'sixteen' && sixteenToEighteenElectron && 
+        renderElectron(sixteenToEighteenElectron.className, 'sixteenToEighteen')
+      }
     </div>
   );
 };
