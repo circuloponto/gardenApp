@@ -43,12 +43,14 @@ function App() {
   const [fretboardOrientation, setFretboardOrientation] = useState('vertical'); // 'vertical' or 'horizontal'
   const [firstChordColor, setFirstChordColor] = useState('#f08c00'); // Orange
   const [secondChordColor, setSecondChordColor] = useState('#00e1ff'); // Blue
+  const [electronColor, setElectronColor] = useState('#ffffff'); // White (default)
   
   // Update CSS variables when colors change
   useEffect(() => {
     // Set the main color variables
     document.documentElement.style.setProperty('--first-chord-color', firstChordColor);
     document.documentElement.style.setProperty('--second-chord-color', secondChordColor);
+    document.documentElement.style.setProperty('--electron-color', electronColor);
     
     // Convert hex to RGB for rgba() functions
     const hexToRgb = (hex) => {
@@ -61,7 +63,8 @@ function App() {
     // Set RGB values
     document.documentElement.style.setProperty('--first-chord-color-rgb', hexToRgb(firstChordColor));
     document.documentElement.style.setProperty('--second-chord-color-rgb', hexToRgb(secondChordColor));
-  }, [firstChordColor, secondChordColor]);
+    document.documentElement.style.setProperty('--electron-color-rgb', hexToRgb(electronColor));
+  }, [firstChordColor, secondChordColor, electronColor]);
   
   // Function to handle swapping the order of selected chords
   const handleSwapChords = () => {
@@ -326,8 +329,10 @@ function App() {
               setFretboardOrientation={setFretboardOrientation}
               firstChordColor={firstChordColor}
               secondChordColor={secondChordColor}
+              electronColor={electronColor}
               setFirstChordColor={setFirstChordColor}
               setSecondChordColor={setSecondChordColor}
+              setElectronColor={setElectronColor}
             />
             
             {/* Simple Tutorial UI */}
@@ -406,6 +411,7 @@ function App() {
                       chordTypes={chordTypes}
                       chordRootOffsets={chordRootOffsets}
                       displayOrderSwapped={displayOrderSwapped}
+                      electronColor={electronColor}
                     />
                     <Connections viewMode={selectedChords.length === 2 ? 'fruits' : 'connections'} selectedChords={selectedChords} />
                   </div>

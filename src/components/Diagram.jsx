@@ -18,7 +18,7 @@ import SixHorizontal from '../assets/SVGs/6horizontal.svg';
 import SevenHorizontal from '../assets/SVGs/7horizontal.svg';
 
 
-const Diagram = ({ handleChordSelect, selectedChords, possibleChords = [], onChordHover, showElectrons = false, hoveredChord = null, onElectronHover, selectedRoot, chordTypes, chordRootOffsets, displayOrderSwapped = false }) => {
+const Diagram = ({ handleChordSelect, selectedChords, possibleChords = [], onChordHover, showElectrons = false, hoveredChord = null, onElectronHover, selectedRoot, chordTypes, chordRootOffsets, displayOrderSwapped = false, electronColor = '#ffffff' }) => {
     // Debug log to check if showElectrons prop is being passed correctly
     console.log('Diagram received showElectrons:', showElectrons);
     return (
@@ -32,6 +32,7 @@ const Diagram = ({ handleChordSelect, selectedChords, possibleChords = [], onCho
                 selectedRoot={selectedRoot}
                 chordTypes={chordTypes}
                 chordRootOffsets={chordRootOffsets}
+                electronColor={electronColor}
             />}
             <div className="vertical"> 
                 <Chord svg={Dash} className="one" handleChordSelect={handleChordSelect} selectedChords={selectedChords} possibleChords={possibleChords} onChordHover={onChordHover} displayOrderSwapped={displayOrderSwapped}/>

@@ -15,7 +15,22 @@
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
   pointer-events: auto; /* Enable interactions for visible electrons */
-  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(345deg) brightness(250%) contrast(104%);
+}
+
+/* Style for SVG elements inside object tags */
+.electrons-display object {
+  pointer-events: auto;
+}
+
+/* Target all paths inside SVGs to apply the electron color */
+.electrons-display object svg path,
+.electrons-display object svg rect,
+.electrons-display object svg circle,
+.electrons-display object svg polygon,
+.electrons-display object svg line,
+.electrons-display object svg polyline {
+  fill: var(--electron-color, #ffffff);
+  stroke: var(--electron-color, #ffffff);
 }
 
 .hidden {

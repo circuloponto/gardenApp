@@ -9,15 +9,19 @@ const Settings = ({
   setFretboardOrientation, 
   firstChordColor, 
   secondChordColor, 
+  electronColor,
   setFirstChordColor, 
-  setSecondChordColor 
+  setSecondChordColor,
+  setElectronColor
 }) => {
   const [localFirstColor, setLocalFirstColor] = useState(firstChordColor);
   const [localSecondColor, setLocalSecondColor] = useState(secondChordColor);
+  const [localElectronColor, setLocalElectronColor] = useState(electronColor);
 
   const handleSave = () => {
     setFirstChordColor(localFirstColor);
     setSecondChordColor(localSecondColor);
+    setElectronColor(localElectronColor);
     onClose();
   };
 
@@ -101,6 +105,19 @@ const Settings = ({
                   onChange={(e) => {
                     e.stopPropagation();
                     setLocalSecondColor(e.target.value);
+                  }}
+                />
+              </div>
+              
+              <div className="color-option">
+                <label>Electron Color</label>
+                <div className="color-preview" style={{ backgroundColor: localElectronColor }}></div>
+                <input
+                  type="color"
+                  value={localElectronColor}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setLocalElectronColor(e.target.value);
                   }}
                 />
               </div>

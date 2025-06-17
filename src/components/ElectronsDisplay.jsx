@@ -110,7 +110,7 @@ const allElectrons = Object.keys(electronSvgMap).map(name => ({
   className: `electron_${name}`
 }));
 
-const ElectronsDisplay = ({ isVisible, selectedChords = [], hoveredChord = null, onElectronHover, selectedRoot, chordTypes, chordRootOffsets }) => {
+const ElectronsDisplay = ({ isVisible, selectedChords = [], hoveredChord = null, onElectronHover, selectedRoot, chordTypes, chordRootOffsets, electronColor = '#ffffff' }) => {
   const [hoveredElectron, setHoveredElectron] = useState(null);
   
   // Helper function to get visible electrons based on selected chords
@@ -349,6 +349,81 @@ const ElectronsDisplay = ({ isVisible, selectedChords = [], hoveredChord = null,
     console.log('sixteenToEighteen electron NOT found in allElectrons!');
   }
 
+  // This uses a pre-calculated mapping of colors to CSS filters
+  // Based on the approach from https://codepen.io/sosuke/pen/Pjoqqp
+  const getColorFilter = (hexColor) => {
+    // If color is white (default), don't apply any filter
+    if (hexColor === '#ffffff') {
+      return {};
+    }
+    
+    // Common colors with pre-calculated filters for better accuracy
+    const filterMap = {
+      '#ff0000': 'invert(12%) sepia(100%) saturate(5699%) hue-rotate(0deg) brightness(100%) contrast(115%)', // Red
+      '#00ff00': 'invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(128%)', // Green
+      '#0000ff': 'invert(8%) sepia(100%) saturate(7479%) hue-rotate(248deg) brightness(101%) contrast(143%)', // Blue
+      '#ffff00': 'invert(89%) sepia(61%) saturate(1095%) hue-rotate(6deg) brightness(106%) contrast(106%)', // Yellow
+      '#00ffff': 'invert(87%) sepia(51%) saturate(1193%) hue-rotate(157deg) brightness(104%) contrast(104%)', // Cyan
+      '#ff00ff': 'invert(21%) sepia(100%) saturate(7414%) hue-rotate(301deg) brightness(123%) contrast(136%)', // Magenta
+      '#000000': 'brightness(0) saturate(100%)', // Black
+      '#ff8000': 'invert(50%) sepia(57%) saturate(3980%) hue-rotate(1deg) brightness(103%) contrast(104%)', // Orange
+      '#8000ff': 'invert(16%) sepia(95%) saturate(6932%) hue-rotate(275deg) brightness(90%) contrast(129%)', // Purple
+      '#0080ff': 'invert(43%) sepia(85%) saturate(1752%) hue-rotate(194deg) brightness(102%) contrast(101%)', // Light Blue
+      '#ff0080': 'invert(23%) sepia(83%) saturate(7471%) hue-rotate(331deg) brightness(107%) contrast(125%)', // Pink
+      '#80ff00': 'invert(75%) sepia(72%) saturate(1344%) hue-rotate(52deg) brightness(105%) contrast(106%)', // Lime
+      '#00ff80': 'invert(84%) sepia(33%) saturate(7493%) hue-rotate(115deg) brightness(96%) contrast(104%)', // Spring Green
+      '#0080ff': 'invert(43%) sepia(85%) saturate(1752%) hue-rotate(194deg) brightness(102%) contrast(101%)', // Dodger Blue
+      '#8000ff': 'invert(16%) sepia(95%) saturate(6932%) hue-rotate(275deg) brightness(90%) contrast(129%)', // Electric Purple
+      '#ff8000': 'invert(50%) sepia(57%) saturate(3980%) hue-rotate(1deg) brightness(103%) contrast(104%)', // Dark Orange
+    };
+    
+    // Normalize the hex color (lowercase, with #)
+    const normalizedHex = hexColor.toLowerCase();
+    
+    // If we have a pre-calculated filter, use it
+    if (filterMap[normalizedHex]) {
+      return { filter: filterMap[normalizedHex] };
+    }
+    
+    // For colors we don't have pre-calculated, use a simple approximation
+    // Convert hex to RGB
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    };
+    
+    const rgb = hexToRgb(normalizedHex);
+    if (!rgb) return {};
+    
+    // Find the closest pre-calculated color
+    let closestColor = '#ffffff';
+    let minDistance = Number.MAX_VALUE;
+    
+    Object.keys(filterMap).forEach(color => {
+      const targetRgb = hexToRgb(color);
+      if (targetRgb) {
+        // Calculate color distance using simple Euclidean distance
+        const distance = Math.sqrt(
+          Math.pow(targetRgb.r - rgb.r, 2) +
+          Math.pow(targetRgb.g - rgb.g, 2) +
+          Math.pow(targetRgb.b - rgb.b, 2)
+        );
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestColor = color;
+        }
+      }
+    });
+    
+    // Use the filter of the closest color
+    return { filter: filterMap[closestColor] };
+  };
+
   return (
     <div className={styles['electrons-display']}>
       {visibleElectrons.map((electron, index) => (
@@ -359,6 +434,7 @@ const ElectronsDisplay = ({ isVisible, selectedChords = [], hoveredChord = null,
           className={`${styles[electron.className]} ${styles['visible']}`}
           onMouseEnter={() => handleElectronHover(electron.className)}
           onMouseLeave={handleElectronLeave}
+          style={getColorFilter(electronColor)}
         />
       ))}
       
@@ -371,6 +447,7 @@ const ElectronsDisplay = ({ isVisible, selectedChords = [], hoveredChord = null,
           className={`${styles[sixteenToEighteenElectron.className]} ${styles['visible']}`}
           onMouseEnter={() => handleElectronHover(sixteenToEighteenElectron.className)}
           onMouseLeave={handleElectronLeave}
+          style={getColorFilter(electronColor)}
         />
       )}
        
